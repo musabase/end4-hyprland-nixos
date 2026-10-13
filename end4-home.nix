@@ -25,6 +25,8 @@ in
 
   home.packages = [ end4-quickshell end4-python ];
 
+  fonts.fontconfig.enable = false;
+
   # End-4's scripts source this "venv" before running Python
   home.file.".local/state/quickshell/.venv/bin/activate".text = ''
     export VIRTUAL_ENV="${end4-python}"
