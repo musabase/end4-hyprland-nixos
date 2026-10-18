@@ -1,0 +1,77 @@
+name: Sync with End-4
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"   # every Monday 03:17 UTC; change as you like
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: end4-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Finds End-4's latest commit and the quickshell commit its Arch package pins at that
+      # commit, then edits flake.nix and end4-home.nix. Writes the PR text to a file.
+      - name: Bump pins
+        id: bump
+        run: python3 scripts/bump_end4.py --summary "$RUNNER_TEMP/summary.md"
+
+      - uses: cachix/install-nix-action@v31
+        if: steps.bump.outputs.changed == 'true'
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Evaluation only (no build): catches renamed packages, removed options and a bad flake.
+      # It cannot prove the desktop runs. A person still tests the PR in the VM.
+      - name: Evaluate the NixOS config on a stub host
+        id: eval
+        if: steps.bump.outputs.changed == 'true'
+        continue-on-error: true
+        run: |
+          cat > configuration.nix <<'NIX'
+          { ... }: {
+            boot.isContainer = true;
+            networking.hostName = "nixos";
+            users.users.musabase = { isNormalUser = true; home = "/home/musabase"; };
+            system.stateVersion = "25.11";
+          }
+          NIX
+          git add -N configuration.nix
+          nix eval --raw .#nixosConfigurations.nixos.config.system.build.toplevel.drvPath
+
+      - name: Clean up CI-only files and record the check result
+        if: steps.bump.outputs.changed == 'true'
+        run: |
+          rm -f configuration.nix flake.lock
+          git reset -q
+          {
+            echo
+            if [ "${{ steps.eval.outcome }}" = "success" ]; then
+              echo "**CI evaluation:** passed (evaluation only, nothing was built)."
+            else
+              echo "**CI evaluation: FAILED.** See the workflow log. This PR is a draft."
+            fi
+          } >> "$RUNNER_TEMP/summary.md"
+
+      - name: Open or update the pull request
+        if: steps.bump.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/end4-sync
+          add-paths: |
+            flake.nix
+            end4-home.nix
+          commit-message: "Sync pins with End-4 ${{ steps.bump.outputs.short }}"
+          title: "Sync pins with End-4 ${{ steps.bump.outputs.short }}"
+          body-path: ${{ runner.temp }}/summary.md
+          draft: ${{ steps.eval.outcome != 'success' }}
