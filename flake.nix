@@ -11,7 +11,7 @@
 
     # Same QuickShell commit End-4 pins in its Arch package (illogical-impulse-quickshell-git)
     quickshell = {
-      url = "github:quickshell-mirror/quickshell/41651d7dcd62a9400eb6f4f8a8580efe00901efb";
+      url = "github:quickshell-mirror/quickshell/4f508be500dea6e5732cc3d50382a0048b17e7b1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
