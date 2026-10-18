@@ -2,7 +2,9 @@
 # https://github.com/musabase/end4-hyprland-nixos
 { config, lib, pkgs, inputs, osConfig, ... }:
 let
-  dots = "${config.home.homeDirectory}/.local/share/end4-dots";
+   dots = "${config.home.homeDirectory}/.local/share/end4-dots";
+   # Pinned together with the quickshell commit in flake.nix (updated by .github/workflows/bump-end4.yml)
+   dotsRev = "0000000000000000000000000000000000000000";
 
   # QuickShell (End-4's pinned commit) plus the QML modules from End-4's Arch package
   end4-quickshell = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default.withModules
@@ -40,6 +42,8 @@ in
     if [ ! -d "${dots}" ]; then
       run ${pkgs.git}/bin/git clone --recurse-submodules \
         https://github.com/end-4/dots-hyprland.git "${dots}"
+      run ${pkgs.git}/bin/git -C "${dots}" checkout --detach ${dotsRev}
+      run ${pkgs.git}/bin/git -C "${dots}" submodule update --init --recursive
     fi
     for f in kdeglobals dolphinrc konsolerc darklyrc; do
       if [ ! -e "$HOME/.config/$f" ]; then
