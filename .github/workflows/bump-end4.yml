@@ -41,6 +41,7 @@ jobs:
           cat > configuration.nix <<'NIX'
           { ... }: {
             boot.isContainer = true;
+            nixpkgs.hostPlatform = "x86_64-linux";
             networking.hostName = "nixos";
             users.users.musabase = { isNormalUser = true; home = "/home/musabase"; };
             system.stateVersion = "25.11";
