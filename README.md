@@ -46,7 +46,7 @@ sudo nix flake update
 sudo nix-shell -p git --run "nixos-rebuild switch --flake .#nixos"
 ```
 
-![downloading end4.nix files](assets/assets/downloading-end-4-hyprland-dotfiles-configured-for-nixos.webp)
+
 
 The rebuild does not touch an existing End-4 folder. Move it to the commit pinned in `end4-home.nix`, as your normal user (no sudo):
 
@@ -58,7 +58,7 @@ git fetch origin
 git checkout --detach $REV
 git submodule update --init --recursive
 ```
-![End4 dotfiles on NixOS](assets/assets/assets/end-4-hyprland-dotfiles-on-nixos-4.webp)
+
 
 
 Then press Ctrl + Super + R to restart the shell. `git stash` sets aside local changes. Run `git stash pop` afterwards to bring back edits you made on purpose.
