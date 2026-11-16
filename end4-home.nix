@@ -4,7 +4,7 @@
 let
    dots = "${config.home.homeDirectory}/.local/share/end4-dots";
    # Pinned together with the quickshell commit in flake.nix (updated by .github/workflows/bump-end4.yml)
-   dotsRev = "2f2a376fdb2ad738bf55f693dd0b474b64bb0ab8";
+   dotsRev = "21733c3ca7f4edc20faafedea844dc96002c6f7f";
 
   # QuickShell (End-4's pinned commit) plus the QML modules from End-4's Arch package
   end4-quickshell = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default.withModules
