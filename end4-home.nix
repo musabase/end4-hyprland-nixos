@@ -16,7 +16,7 @@ let
 
   # Python packages from End-4's sdata/uv/requirements.in
   end4-python = pkgs.python3.withPackages (ps: with ps; [
-    build pillow setuptools-scm wheel pywayland psutil kde-material-you-colors
+    build pillow setuptools-scm wheel pywayland psutil pkgs.kde-material-you-colors
     materialyoucolor libsass material-color-utilities setproctitle click loguru
     pycairo pygobject3 tqdm numpy opencv4 google-auth requests
   ]);
